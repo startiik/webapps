@@ -64,7 +64,7 @@ app.factory('posts', ['$http',function($http){
 		};
 
 		postFactory.getAll = function(){
-			$http.get('/posts').succes(function(data){
+			$http.get('/posts').success(function(data){
 				angular.copy(data, postFactory.posts);
 			})
 		}
@@ -79,14 +79,14 @@ app.config([
 	function($stateProvider, $urlRouterProvider){
 		$stateProvider
 			.state('home', {
-				url: "/home",
-				templateUrl: "/home.html",
-				controller: "MainController",
-				resolve: {
-					postPromise: ['posts', function(postFactory){
-						return postFactory.getAll();
-					}]
-				},
+			  url: '/home',
+			  templateUrl: '/home.html',
+			  controller: 'MainCtrl',
+			  resolve: {
+			    postPromise: ['posts', function(posts){
+			      return posts.getAll();
+			    }]
+			  }
 			})
 			.state('posts', {
 				url:"/posts/{id}",
