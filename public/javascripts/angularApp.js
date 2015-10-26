@@ -1,4 +1,4 @@
-var app = angular.module('flapperNews', ['ui.router']);
+var app = angular.module('flapperNews', ['ui.router','ngMaterial']);
 
 app.config(['$stateProvider', '$urlRouterProvider',
 function($stateProvider, $urlRouterProvider) {
@@ -265,5 +265,12 @@ function($scope, auth) {
 	$scope.isLoggedIn = auth.isLoggedIn;
 	$scope.currentUser = auth.currentUser;
 	$scope.logOut = auth.logOut;
+}]);
+
+app.controller('AppCtrl', ['$scope', '$mdSidenav', function($scope, $mdSidenav){
+  $scope.toggleSidenav = function(menuId) {
+    $mdSidenav(menuId).toggle();
+  };
+ 
 }]);
 
