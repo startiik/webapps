@@ -1,2 +1,0 @@
-require('./Post');
-require('./Comment');
