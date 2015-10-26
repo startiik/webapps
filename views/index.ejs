@@ -11,25 +11,27 @@
   <meta name="viewport" content="initial-scale=1" />
 </head>
 <body layout="column" ng-controller="AppCtrl">
- <!-- <nav class="navbar navbar-default pull-right" ng-controller="NavCtrl">
-    <ul class="nav navbar-nav">
-      <li ng-show="isLoggedIn()"><a>{{ currentUser() }}</a></li>
-      <li ng-show="isLoggedIn()"><a href="" ng-click="logOut()">Log Out</a></li>
-      <li ng-hide="isLoggedIn()"><a href="/#/login">Log In</a></li>
-      <li ng-hide="isLoggedIn()"><a href="/#/register">Register</a></li>
-    </ul>
-  </nav>-->
+ 
 
   <md-toolbar layout="row">
     <div class="md-toolbar-tools">
       <md-button ng-click="toggleSidenav('left')" hide-gt-sm class="md-icon-button">
         <md-icon aria-label="Menu" md-svg-icon="https://s3-us-west-2.amazonaws.com/s.cdpn.io/68133/menu.svg"></md-icon>
       </md-button>
-      <h1>Hello World</h1>
+      <h1>Flapper News</h1>
+
     </div>
   </md-toolbar>
   <div layout="row" flex>
     <md-sidenav layout="column" class="md-sidenav-left md-whiteframe-z2" md-component-id="left" md-is-locked-open="$mdMedia('gt-sm')">
+         <!-- <nav class="navbar navbar-default pull-right" >-->
+              <ul  ng-controller="NavCtrl">
+                <li ng-show="isLoggedIn()"><a>{{ currentUser() }}</a></li>
+                <li ng-show="isLoggedIn()"><a href="" ng-click="logOut()">Log Out</a></li>
+                <li ng-hide="isLoggedIn()"><a href="/#/login">Log In</a></li>
+                <li ng-hide="isLoggedIn()"><a href="/#/register">Register</a></li>
+              </ul>
+          <!--  </nav>-->
 
     </md-sidenav>
     <div layout="column" flex id="content">
@@ -40,9 +42,6 @@
   </div>
 
   <script type="text/ng-template" id="/home.html">
-    <div class="page-header">
-      <h1>Flapper News</h1>
-    </div>
 
     <div ng-repeat="post in posts | orderBy: '-upvotes'">
       <span class="glyphicon glyphicon-thumbs-up" ng-click="upvote(post)"></span>
