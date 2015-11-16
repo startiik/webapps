@@ -1,39 +1,41 @@
 <html  ng-app="flapperNews">
 <head>
   <title>Flapper News</title>
-  <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/0.9.4/angular-material.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=RobotoDraft:300,400,500,700,400italic">
-
-  
-  <style> .glyphicon-thumbs-up { cursor:pointer } </style>
+  <link rel="stylesheet" href="stylesheets/style.css">
 
   <meta name="viewport" content="initial-scale=1" />
 </head>
 <body layout="column" ng-controller="AppCtrl">
  
-
+  <!-- headbar - toolbar -->
   <md-toolbar layout="row">
     <div class="md-toolbar-tools">
       <md-button ng-click="toggleSidenav('left')" hide-gt-sm class="md-icon-button">
         <md-icon aria-label="Menu" md-svg-icon="https://s3-us-west-2.amazonaws.com/s.cdpn.io/68133/menu.svg"></md-icon>
       </md-button>
-      <h1>Flapper News</h1>
+
+      <h1 id="title"><span class="glyphicon glyphicon-globe" ></span>&#09; Flapper News</h1>
 
     </div>
   </md-toolbar>
   <div layout="row" flex>
-    <md-sidenav layout="column" class="md-sidenav-left md-whiteframe-z2" md-component-id="left" md-is-locked-open="$mdMedia('gt-sm')">
-         <!-- <nav class="navbar navbar-default pull-right" >-->
-              <ul  ng-controller="NavCtrl">
-                <li ng-show="isLoggedIn()"><a>{{ currentUser() }}</a></li>
-                <li ng-show="isLoggedIn()"><a href="" ng-click="logOut()">Log Out</a></li>
-                <li ng-hide="isLoggedIn()"><a href="/#/login">Log In</a></li>
-                <li ng-hide="isLoggedIn()"><a href="/#/register">Register</a></li>
-              </ul>
-          <!--  </nav>-->
 
+    <!-- sidenav bar -->
+    <md-sidenav layout="column" class="md-sidenav-left md-whiteframe-z2" md-component-id="left" md-is-locked-open="$mdMedia('gt-sm')">
+      <ul  ng-controller="NavCtrl" layout="column" layout-align="space-around center">
+        <li><md-button ng-show="isLoggedIn()" class="md-primary">{{ currentUser() }}</md-button></li>
+        <li><md-button  href="/#/home" class="md-primary">Home</md-button></li>
+        <li><md-button ng-show="isLoggedIn()" href="" ng-click="logOut()" class="md-warn">Log Out</md-button></li>
+        <li><md-button ng-hide="isLoggedIn()" href="/#/login" class="md-primary">Log In</md-button></li>
+        <li><md-button ng-hide="isLoggedIn()" href="/#/register" class="md-primary">Register</md-button></li>
+      </ul>
     </md-sidenav>
+
+    <!-- maincontent loading -->
     <div layout="column" flex id="content">
       <md-content layout="column" flex class="md-padding">
             <ui-view></ui-view>
@@ -41,47 +43,69 @@
     </div>
   </div>
 
+  <!-- home page -->
   <script type="text/ng-template" id="/home.html">
-
-    <div ng-repeat="post in posts | orderBy: '-upvotes'">
-      <span class="glyphicon glyphicon-thumbs-up" ng-click="upvote(post)"></span>
-        {{post.upvotes}}
-      <span class="glyphicon glyphicon-thumbs-down" ng-click="downvote(post)"></span>
-      <span style="font-size:20px;margin-left:10px">
-        <a ng-show="post.link" href="{{post.link}}">
-          {{post.title}}
-        </a>
-        <span ng-hide="post.link">
-          {{post.title}}
-        </span>
-		<span ng-show="post.author">
-		  posted by <a>{{post.author}}</a> |
-		</span>      
-	 </span>
-      <span>
-        <a href="#/posts/{{post._id}}">Comments</a>
-          ({{post.comments.length}})
-      </span>
+    <div>
+      <md-list ng-repeat="post in posts | orderBy : '-upvotes'">
+        <md-list-item class="md-3-line">
+          <div class="md-list-item-text" layout="column">
+            <h2>{{ post.title }}</h2>
+            <h4>
+              <span>
+                <a ng-show="post.link" href="{{post.link}}" style="text-decoration: none; color: black;">
+                  {{post.link}}
+                </a>
+                <span ng-hide="post.link">
+                  {{post.title}}
+                </span>
+		        <span ng-show="post.author">
+		          posted by <a>{{post.author}}</a> |
+		        </span>
+	          </span>
+            </h4>
+            <p>
+              <md-button class="md-primary" href="#/posts/{{post._id}}">Comments ({{post.comments.length}})</md-button>
+            </p>
+          </div>
+          <span flex></span>
+          <div layout="column" layout-align="end center" style="margin-top: 10%;">
+            <span class="glyphicon glyphicon-thumbs-up" ng-click="upvote(post)"></span>
+            {{post.upvotes}}
+            <span class="glyphicon glyphicon-thumbs-down" ng-click="downvote(post)"></span>
+          </div>
+        </md-list-item>
+        <md-divider ></md-divider>
+      </md-list>
     </div>
 
-    <form ng-submit="addPost()" ng-show="isLoggedIn()" style="margin-top:30px">
-      <h3>Add a new post:</h3>
+    <!-- add new post -->
+    <div class="jumbotron" ng-show="isLoggedIn()">
+      <form ng-submit="addPost()" style="margin-top:30px">
+        <h3>Add a new post:</h3>
 
-      <div class="form-group">
-        <input type="text" class="form-control" placeholder="Title"  ng-model="title">
-      </div>
+        <md-input-container>
+          <label>Title</label>
+          <input type="text" ng-model="title" required>
+        </md-input-container>
+        <md-input-container>
+          <label>Link</label>
+          <input type="text" ng-model="link">
+        </md-input-container>
 
-      <div class="form-group">
-        <input type="text" class="form-control" placeholder="Link" ng-model="link">
-      </div>
+        <div>
+          <md-button class="md-primary md-raised" ng-click="showSimpleToastPosted()">Post</md-button>
+        </div>
 
-      <button type="submit" class="btn btn-primary">Post</button>
-    </form>
-	<div ng-hide="isLoggedIn()">
+      </form>
+    </div>
+
+    <!-- if not logged in or registered -->
+	<div ng-hide="isLoggedIn()" class="jumbotron">
 	  <h3>You need to <a href="/#/login">Log In</a> or <a href="/#/register">Register</a> before you can add a post.</h3>
 	</div>
   </script>
 
+  <!-- posts page -->
   <script type="text/ng-template" id="/posts.html">
     <div class="page-header">
       <h3>
@@ -94,89 +118,108 @@
       </h3>
     </div>
 
-    <div ng-repeat="comment in post.comments | orderBy:'-upvotes'">
-      <span class="glyphicon glyphicon-thumbs-up" ng-click="upvote(comment)"></span>
-        {{comment.upvotes}} 
-      <span class="glyphicon glyphicon-thumbs-down" ng-click="downvote(comment)"></span>
-        - by {{comment.author}}
-      <span style="font-size:20px; margin-left:10px;">
-        {{comment.body}}
-      </span>
+    <!-- all comments -->
+    <div>
+      <md-list ng-repeat="comment in post.comments | orderBy : '-upvotes'">
+        <md-list-item class="md-3-line">
+          <div class="md-list-item-text" layout="column">
+            <h3>by {{comment.author}}</h3>
+            <p>
+                {{comment.body}}
+            </p>
+          </div>
+          <span flex></span>
+          <div layout="column" layout-align="end center">
+            <span class="glyphicon glyphicon-thumbs-up" ng-click="upvote(comment)"></span>
+            {{post.upvotes}}
+            <span class="glyphicon glyphicon-thumbs-down" ng-click="downvote(comment)"></span>
+          </div>
+        </md-list-item>
+        <md-divider ></md-divider>
+      </md-list>
     </div>
 
-    <form ng-submit="addComment()" ng-show="isLoggedIn()" style="margin-top:30px;">
-      <h3>Add a new comment</h3>
+    <!-- add new comment -->
+    <div class="jumbotron">
+      <form ng-submit="addComment()" ng-show="isLoggedIn()">
+        <h3>Add a new comment</h3>
 
-      <div class="form-group">
-        <input type="text" class="form-control" placeholder="Comment" ng-model="body"></input>
-      </div>
+        <md-input-container>
+          <label>Comment</label>
+          <input type="text" ng-model="body" required>
+        </md-input-container>
 
-      <button type="submit" class="btn btn-primary">Post</button>
-    </form>
+        <div>
+          <md-button class="md-primary md-raised">Post</md-button>
+        </div>
+      </form>
+    </div>
+
+    <!-- if not logged in or registered -->
     <div ng-hide="isLoggedIn()">
 	  <h3>You need to <a href="/#/login">Log In</a> or <a href="/#/register">Register</a> before you can comment.</h3>
 	</div>
   </script>
-  
+
+  <!-- register page -->
   <script type="text/ng-template" id="/register.html">
-	  <div class="page-header">
-	    <h1>Flapper News</h1>
-	  </div>
-	
-	  <div ng-show="error" class="alert alert-danger row">
-	    <span>{{ error.message }}</span>
-	  </div>
-	
-	  <form ng-submit="register()"
-	    style="margin-top:30px;">
-	    <h3>Register</h3>
-	
-	    <div class="form-group">
-	      <input type="text"
-	      class="form-control"
-	      placeholder="Username"
-	      ng-model="user.username"></input>
-	    </div>
-	    <div class="form-group">
-	      <input type="password"
-	      class="form-control"
-	      placeholder="Password"
-	      ng-model="user.password"></input>
-	    </div>
-	    <button type="submit" class="btn btn-primary">Register</button>
-	  </form>
-	</script>
+    <div>
+      <div class="page-header text-center">
+        <h1>Register</h1>
+      </div>
 
+      <div ng-show="error" class="alert alert-danger row">
+        <span>{{ error.message }}</span>
+      </div>
 
-	<script type="text/ng-template" id="/login.html">
-	  <div class="page-header">
-	    <h1>Flapper News</h1>
-	  </div>
-	
-	  <div ng-show="error" class="alert alert-danger row">
-	    <span>{{ error.message }}</span>
-	  </div>
-	
-	  <form ng-submit="logIn()"
-	    style="margin-top:30px;">
-	    <h3>Log In</h3>
-	
-	    <div class="form-group">
-	      <input type="text"
-	      class="form-control"
-	      placeholder="Username"
-	      ng-model="user.username"></input>
-	    </div>
-	    <div class="form-group">
-	      <input type="password"
-	      class="form-control"
-	      placeholder="Password"
-	      ng-model="user.password"></input>
-	    </div>
-	    <button type="submit" class="btn btn-primary">Log In</button>
-	  </form>
+      <div layout="column" layout-align="space-around center">
+        <form ng-submit="register()">
+
+          <md-input-container>
+            <label>Username</label>
+            <input type="text" ng-model="user.username" required>
+          </md-input-container>
+          <md-input-container>
+            <label>Password</label>
+            <input type="password" ng-model="user.password" required>
+          </md-input-container>
+
+          <md-button class="md-primary md-raised">Register</md-button>
+        </form>
+      </div>
+    </div>
   </script>
 
+  <!-- login page -->
+  <script type="text/ng-template" id="/login.html">
+    <div>
+      <div class="page-header text-center">
+        <h1>Login</h1>
+      </div>
+
+      <div ng-show="error" class="alert alert-danger row">
+        <span>{{ error.message }}</span>
+      </div>
+
+      <div layout="column" layout-align="space-around center">
+        <form ng-submit="logIn()">
+
+          <md-input-container>
+            <label>Username</label>
+            <input type="text" ng-model="user.username" required>
+          </md-input-container>
+          <md-input-container>
+            <label>Password</label>
+            <input type="password" ng-model="user.password" required>
+          </md-input-container>
+
+          <md-button class="md-primary md-raised" ng-click="showSimpleToast()">Log In</md-button>
+        </form>
+      </div>
+    </div>
+  </script>
+
+  <!-- scripts loading -->
   <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.10/angular-ui-router.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-animate.min.js"></script>

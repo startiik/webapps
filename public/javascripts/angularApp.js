@@ -104,8 +104,7 @@ function($http, $window) {
 	return auth;
 }]);
 
-app.factory('posts', ['$http', 'auth',
-function($http, auth) {
+app.factory('posts', ['$http', 'auth', function($http, auth) {
 	var o = {
 		posts : []
 	};
@@ -239,9 +238,41 @@ function($scope, posts, post, auth) {
 
 }]);
 
-app.controller('AuthCtrl', ['$scope', '$state', 'auth',
-function($scope, $state, auth) {
+app.controller('AuthCtrl', ['$scope','$mdToast', '$state', 'auth',
+function($scope, $mdToast, $state, auth) {
 	$scope.user = {};
+
+	/* toast */
+	var last = {
+		bottom: true,
+		top: false,
+		left: false,
+		right: true
+	};
+	$scope.toastPosition = angular.extend({},last);
+	$scope.getToastPosition = function() {
+		sanitizePosition();
+		return Object.keys($scope.toastPosition)
+			.filter(function(pos) { return $scope.toastPosition[pos]; })
+			.join(' ');
+	};
+	function sanitizePosition() {
+		var current = $scope.toastPosition;
+		if ( current.bottom && last.top ) current.top = false;
+		if ( current.top && last.bottom ) current.bottom = false;
+		if ( current.right && last.left ) current.left = false;
+		if ( current.left && last.right ) current.right = false;
+		last = angular.extend({},current);
+	}
+
+	$scope.showSimpleToast = function() {
+		$mdToast.show(
+			$mdToast.simple()
+				.content('Welcome !')
+				.position($scope.getToastPosition())
+				.hideDelay(3000)
+		);
+	};
 
 	$scope.register = function() {
 		auth.register($scope.user).error(function(error) {
