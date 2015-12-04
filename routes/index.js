@@ -10,7 +10,6 @@ var User = mongoose.model('User');
 
 var auth = jwt({secret: 'SECRET', userProperty: 'payload'});
 
-
 /* GET home page. */
 router.get('/', function(req, res) {
   res.render('index');
