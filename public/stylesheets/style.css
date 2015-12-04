@@ -28,4 +28,8 @@ ul {
   margin: 20% auto;
 }
 
-.glyphicon-thumbs-up { cursor:pointer }
+#voting {
+  margin-top : 10%;
+}
+
+.glyphicon-thumbs-up { cursor:pointer; }

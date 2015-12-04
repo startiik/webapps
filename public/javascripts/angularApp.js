@@ -52,8 +52,9 @@ function($stateProvider, $urlRouterProvider) {
 	$urlRouterProvider.otherwise('home');
 }]);
 
-app.factory('auth', ['$http', '$window',
-function($http, $window) {
+/* AUTHFACTORY */
+app.factory('auth', ['$http', '$window', function($http, $window) {
+
 	var auth = {};
 
 	auth.saveToken = function(token) {
@@ -104,6 +105,7 @@ function($http, $window) {
 	return auth;
 }]);
 
+/* POSTFACTORY */
 app.factory('posts', ['$http', 'auth', function($http, auth) {
 	var o = {
 		posts : []
@@ -114,72 +116,71 @@ app.factory('posts', ['$http', 'auth', function($http, auth) {
 			angular.copy(data, o.posts);
 		});
 	};
+
 	//now we'll need to create new posts
 	//uses the router.post in index.js to post a new Post mongoose model to mongodb
 	//when $http gets a success back, it adds this post to the posts object in
 	//this local factory, so the mongodb and angular data is the same
-	//sweet!
 	o.create = function(post) {
 	  return $http.post('/posts', post, {
-	    headers: {Authorization: 'Bearer '+auth.getToken()}
-	  }).success(function(data){
+	    headers: { Authorization: 'Bearer '+ auth.getToken() }
+	  }).success(function(data) {
 	    o.posts.push(data);
 	  });
 	};
 	
 	o.upvote = function(post) {
 	  return $http.put('/posts/' + post._id + '/upvote', null, {
-	    headers: {Authorization: 'Bearer '+auth.getToken()}
+	    headers: { Authorization: 'Bearer '+ auth.getToken() }
 	  }).success(function(data){
 	    post.upvotes += 1;
 	  });
 	};
-	//downvotes
+
 	o.downvote = function(post) {
 	  return $http.put('/posts/' + post._id + '/downvote', null, {
-	    headers: {Authorization: 'Bearer '+auth.getToken()}
+	    headers: { Authorization: 'Bearer '+ auth.getToken() }
 	  }).success(function(data){
 	    post.upvotes -= 1;
 	  });
 	};
+
 	//grab a single post from the server
 	o.get = function(id) {
-		//use the express route to grab this post and return the response
-		//from that route, which is a json of the post data
-		//.then is a promise, a kind of newly native thing in JS that upon cursory research
-		//looks friggin sweet; TODO Learn to use them like a boss.  First, this.
+		//.then is a promise.
 		return $http.get('/posts/' + id).then(function(res) {
 			return res.data;
 		});
 	};
+
 	//comments, once again using express
 	o.addComment = function(id, comment) {
 	  return $http.post('/posts/' + id + '/comments', comment, {
-	    headers: {Authorization: 'Bearer '+auth.getToken()}
+	    headers: { Authorization: 'Bearer '+ auth.getToken() }
 	  });
 	};
 	
 	o.upvoteComment = function(post, comment) {
 	  return $http.put('/posts/' + post._id + '/comments/'+ comment._id + '/upvote', null, {
-	    headers: {Authorization: 'Bearer '+auth.getToken()}
+	    headers: { Authorization: 'Bearer '+ auth.getToken() }
 	  }).success(function(data){
 	    comment.upvotes += 1;
 	  });
-	};	
+	};
+
 	//downvote comments
-	//I should really consolidate these into one voteHandler function
 	o.downvoteComment = function(post, comment) {
 	  return $http.put('/posts/' + post._id + '/comments/'+ comment._id + '/downvote', null, {
-	    headers: {Authorization: 'Bearer '+auth.getToken()}
+	    headers: { Authorization: 'Bearer '+ auth.getToken() }
 	  }).success(function(data){
 	    comment.upvotes -= 1;
 	  });
-	};	
+	};
+
 	return o;
 }]);
 
-
-
+/* MAINCONTROLLER */
 app.controller('MainCtrl', ['$scope', 'posts', 'auth',
 function($scope, posts, auth) {
 	$scope.posts = posts.posts;
@@ -211,6 +212,7 @@ function($scope, posts, auth) {
 	};
 }]);
 
+/* POSTCONTROLLER */
 app.controller('PostsCtrl', ['$scope', 'posts', 'post', 'auth',
 function($scope, posts, post, auth) {
 	$scope.post = post;
@@ -236,8 +238,42 @@ function($scope, posts, post, auth) {
 		posts.downvoteComment(post, comment);
 	};
 
+
+	/* toast */
+	var last = {
+		bottom: true,
+		top: false,
+		left: false,
+		right: true
+	};
+	$scope.toastPosition = angular.extend({},last);
+	$scope.getToastPosition = function() {
+		sanitizePosition();
+		return Object.keys($scope.toastPosition)
+			.filter(function(pos) { return $scope.toastPosition[pos]; })
+			.join(' ');
+	};
+	function sanitizePosition() {
+		var current = $scope.toastPosition;
+		if ( current.bottom && last.top ) current.top = false;
+		if ( current.top && last.bottom ) current.bottom = false;
+		if ( current.right && last.left ) current.left = false;
+		if ( current.left && last.right ) current.right = false;
+		last = angular.extend({},current);
+	}
+
+	$scope.showSimpleToastPosted = function() {
+		$mdToast.show(
+			$mdToast.simple()
+				.content('Well posted')
+				.position($scope.getToastPosition())
+				.hideDelay(3000)
+		);
+	};
+
 }]);
 
+/* AUTHENTICATIONCONTROLLER */
 app.controller('AuthCtrl', ['$scope','$mdToast', '$state', 'auth',
 function($scope, $mdToast, $state, auth) {
 	$scope.user = {};
@@ -268,7 +304,7 @@ function($scope, $mdToast, $state, auth) {
 	$scope.showSimpleToast = function() {
 		$mdToast.show(
 			$mdToast.simple()
-				.content('Welcome !')
+				.content('Welcome ' + user.name)
 				.position($scope.getToastPosition())
 				.hideDelay(3000)
 		);
@@ -291,6 +327,7 @@ function($scope, $mdToast, $state, auth) {
 	};
 }]);
 
+/* NAVIGATIONCONTROLLER */
 app.controller('NavCtrl', ['$scope', 'auth',
 function($scope, auth) {
 	$scope.isLoggedIn = auth.isLoggedIn;
@@ -298,6 +335,7 @@ function($scope, auth) {
 	$scope.logOut = auth.logOut;
 }]);
 
+/* APPLICATIONCONTROLLER */
 app.controller('AppCtrl', ['$scope', '$mdSidenav', function($scope, $mdSidenav){
   $scope.toggleSidenav = function(menuId) {
     $mdSidenav(menuId).toggle();
