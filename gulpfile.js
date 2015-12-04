@@ -11,8 +11,6 @@ var plugins = gulpLoadPlugins();
 var testFolder = './test';
 
 /* testing */
-
-
 gulp.task('runTests', function () {
    return gulp.src(testFolder + '/*.js').pipe(plugins.mocha());
 });
